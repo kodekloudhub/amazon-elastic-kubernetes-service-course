@@ -200,12 +200,11 @@ resource "aws_launch_template" "node_launch_template" {
   )
 }
 
-
 # Wait for LT to settle, or CloudFormation may fail
 resource "time_sleep" "wait_30_seconds" {
   depends_on = [
     aws_launch_template.node_launch_template
-    ]
+  ]
 
   create_duration = "30s"
 }
@@ -223,7 +222,7 @@ Resources:
   NodeGroup:
     Type: AWS::AutoScaling::AutoScalingGroup
     Properties:
-      VPCZoneIdentifier: ["${data.aws_subnets.public.ids[0]}","${data.aws_subnets.public.ids[1]}", "${data.aws_subnets.public.ids[2]}"]
+      VPCZoneIdentifier: ["${data.aws_subnets.public.ids[0]}","${data.aws_subnets.public.ids[1]}"]
       MinSize: "${var.node_group_min_size}"
       MaxSize: "${var.node_group_max_size}"
       DesiredCapacity: "${var.node_group_desired_capacity}"
@@ -232,7 +231,6 @@ Resources:
         LaunchTemplateId: "${aws_launch_template.node_launch_template.id}"
         Version: "${aws_launch_template.node_launch_template.latest_version}"
     UpdatePolicy:
-    # Ignore differences in group size properties caused by scheduled actions
       AutoScalingScheduledAction:
         IgnoreUnmodifiedGroupSizeProperties: true
       AutoScalingRollingUpdate:
