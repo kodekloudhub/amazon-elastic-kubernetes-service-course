@@ -29,7 +29,9 @@ data "aws_subnets" "public" {
     values = [
       "${var.aws_region}a",
       "${var.aws_region}b",
-      "${var.aws_region}c"
+      "${var.aws_region}c",
+      "${var.aws_region}d",
+      "${var.aws_region}f"
     ]
   }
 }
