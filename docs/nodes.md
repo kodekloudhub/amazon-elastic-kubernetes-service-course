@@ -22,7 +22,7 @@ If you came here from the [Amazon EKS course](https://learn.kodekloud.com/user/c
         vi aws-auth-cm.yaml
         ```
 
-    1. Replace the placeholder text `<ARN of instance role (not instance profile)>` with the value of `NodeInstanceRole` from Terraform, then save and exit the editor. The ConfigMap should look like this:
+    1. Replace the placeholder text `<ARN of instance role (not instance profile)>` with the value of `NodeInstanceRole` from Terraform, then save and exit the editor. The ConfigMap looks like this before editing:
 
         ```yaml
         apiVersion: v1
@@ -32,11 +32,11 @@ If you came here from the [Amazon EKS course](https://learn.kodekloud.com/user/c
         namespace: kube-system
         data:
         mapRoles: |
-            - rolearn: <ARN of instance role (not instance profile)> # <- EDIT THIS
+          - rolearn: <ARN of instance role (not instance profile)> # <- EDIT THIS
             username: system:node:{{EC2PrivateDNSName}}
             groups:
-                - system:bootstrappers
-                - system:nodes
+              - system:bootstrappers
+              - system:nodes
 
         ```
 
