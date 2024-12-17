@@ -64,7 +64,7 @@ resource "aws_iam_role_policy_attachment" "node_instance_role_EKSCNIP" {
 }
 
 resource "aws_iam_role_policy_attachment" "node_instance_role_EKSCRRO" {
-    policy_arn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
+    policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
     role = aws_iam_role.node_instance_role.name
 }
 
