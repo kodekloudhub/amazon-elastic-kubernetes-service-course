@@ -17,7 +17,7 @@ data "http" "cloudshell_ip" {
   url = "https://checkip.amazonaws.com/"
 }
 
-# Get the subnets to use for the cluster ti bind to and the autoscaling group
+# Get the subnets to use for the cluster to bind to and the autoscaling group
 # to place nodes in.
 data "aws_subnets" "public" {
   filter {
@@ -25,16 +25,20 @@ data "aws_subnets" "public" {
     values = [data.aws_vpc.default_vpc.id]
   }
   filter {
+    # Occasionally VPC starts with fewer than 6 AZs
+    # We can choose 3 from this set.
     name = "availability-zone"
     values = [
       "${var.aws_region}a",
       "${var.aws_region}b",
-      "${var.aws_region}c"
+      "${var.aws_region}c",
+      "${var.aws_region}d",
+      "${var.aws_region}f"
     ]
   }
 }
 
 # Get AMI ID for latest recommended Amazon Linux 2 image
 data "aws_ssm_parameter" "node_ami" {
-  name = "/aws/service/eks/optimized-ami/1.29/amazon-linux-2/recommended/image_id"
+  name = "/aws/service/eks/optimized-ami/1.31/amazon-linux-2/recommended/image_id"
 }

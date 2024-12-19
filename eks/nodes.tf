@@ -50,13 +50,27 @@ data "aws_iam_policy_document" "assume_role_ec2" {
 resource "aws_iam_role" "node_instance_role" {
   name               = var.node_role_name
   assume_role_policy = data.aws_iam_policy_document.assume_role_ec2.json
-  managed_policy_arns = [
-    "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy",
-    "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy",
-    "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly",
-    "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
-  ]
   path = "/"
+}
+
+resource "aws_iam_role_policy_attachment" "node_instance_role_EKSWNP" {
+    policy_arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
+    role = aws_iam_role.node_instance_role.name
+}
+
+resource "aws_iam_role_policy_attachment" "node_instance_role_EKSCNIP" {
+    policy_arn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
+    role = aws_iam_role.node_instance_role.name
+}
+
+resource "aws_iam_role_policy_attachment" "node_instance_role_EKSCRRO" {
+    policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+    role = aws_iam_role.node_instance_role.name
+}
+
+resource "aws_iam_role_policy_attachment" "node_instance_role_SSMMIC" {
+    policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+    role = aws_iam_role.node_instance_role.name
 }
 
 # Instance profile to associate above role with worker nodes
