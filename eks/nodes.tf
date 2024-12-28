@@ -113,7 +113,7 @@ resource "aws_vpc_security_group_egress_rule" "node_egress_all" {
 resource "aws_vpc_security_group_ingress_rule" "node_security_group_from_control_plane_ingress" {
   description                  = "Allow worker Kubelets and pods to receive communication from the cluster control plane"
   security_group_id            = aws_security_group.node_security_group.id
-  referenced_security_group_id = data.aws_eks_cluster.deme_eks.vpc_config[0].cluster_security_group_id
+  referenced_security_group_id = data.aws_eks_cluster.demo_eks.vpc_config[0].cluster_security_group_id
   from_port                    = 1025
   to_port                      = 65535
   ip_protocol                  = "TCP"
@@ -122,7 +122,7 @@ resource "aws_vpc_security_group_ingress_rule" "node_security_group_from_control
 resource "aws_vpc_security_group_ingress_rule" "control_plane_egress_to_node_security_group_on_443" {
   description                  = "Allow pods running extension API servers on port 443 to receive communication from cluster control plane"
   security_group_id            = aws_security_group.node_security_group.id
-  referenced_security_group_id = data.aws_eks_cluster.deme_eks.vpc_config[0].cluster_security_group_id
+  referenced_security_group_id = data.aws_eks_cluster.demo_eks.vpc_config[0].cluster_security_group_id
   from_port                    = 443
   to_port                      = 443
   ip_protocol                  = "TCP"
@@ -139,13 +139,13 @@ resource "aws_vpc_security_group_ingress_rule" "cluster_control_plane_security_g
   to_port                      = 443
   ip_protocol                  = "TCP"
   referenced_security_group_id = aws_security_group.node_security_group.id
-  security_group_id            = data.aws_eks_cluster.deme_eks.vpc_config[0].cluster_security_group_id
+  security_group_id            = data.aws_eks_cluster.demo_eks.vpc_config[0].cluster_security_group_id
 }
 
 resource "aws_vpc_security_group_egress_rule" "control_plane_egress_to_node_security_group" {
   description                  = "Allow the cluster control plane to communicate with worker Kubelet and pods"
   referenced_security_group_id = aws_security_group.node_security_group.id
-  security_group_id            = data.aws_eks_cluster.deme_eks.vpc_config[0].cluster_security_group_id
+  security_group_id            = data.aws_eks_cluster.demo_eks.vpc_config[0].cluster_security_group_id
   from_port                    = 1025
   to_port                      = 65535
   ip_protocol                  = "TCP"
@@ -154,7 +154,7 @@ resource "aws_vpc_security_group_egress_rule" "control_plane_egress_to_node_secu
 resource "aws_vpc_security_group_egress_rule" "control_plane_egress_to_node_security_group_on_443" {
   description                  = "Allow the cluster control plane to communicate with pods running extension API servers on port 443"
   referenced_security_group_id = aws_security_group.node_security_group.id
-  security_group_id            = data.aws_eks_cluster.deme_eks.vpc_config[0].cluster_security_group_id
+  security_group_id            = data.aws_eks_cluster.demo_eks.vpc_config[0].cluster_security_group_id
   from_port                    = 443
   to_port                      = 443
   ip_protocol                  = "TCP"
@@ -226,36 +226,36 @@ resource "time_sleep" "wait_30_seconds" {
 
 # Defer to CloudFormation here to create AutoScalingGroup
 # as the terraform ASG resource does not support UpdatePolicy
-resource "aws_cloudformation_stack" "autoscaling_group" {
-  depends_on = [
-    time_sleep.wait_30_seconds
-  ]
-  name = "eks-cluster-stack"
-  template_body = <<EOF
-Description: "Node autoscaler"
-Resources:
-  NodeGroup:
-    Type: AWS::AutoScaling::AutoScalingGroup
-    Properties:
-      VPCZoneIdentifier: ["${data.aws_subnets.public.ids[0]}","${data.aws_subnets.public.ids[1]}", "${data.aws_subnets.public.ids[2]}"]
-      MinSize: "${var.node_group_min_size}"
-      MaxSize: "${var.node_group_max_size}"
-      DesiredCapacity: "${var.node_group_desired_capacity}"
-      HealthCheckType: EC2
-      LaunchTemplate:
-        LaunchTemplateId: "${aws_launch_template.node_launch_template.id}"
-        Version: "${aws_launch_template.node_launch_template.latest_version}"
-    UpdatePolicy:
-    # Ignore differences in group size properties caused by scheduled actions
-      AutoScalingScheduledAction:
-        IgnoreUnmodifiedGroupSizeProperties: true
-      AutoScalingRollingUpdate:
-        MaxBatchSize: 1
-        MinInstancesInService: "${var.node_group_desired_capacity}"
-        PauseTime: PT5M
-Outputs:
-  NodeAutoScalingGroup:
-    Description: The autoscaling group
-    Value: !Ref NodeGroup
-  EOF
-}
+# resource "aws_cloudformation_stack" "autoscaling_group" {
+#   depends_on = [
+#     time_sleep.wait_30_seconds
+#   ]
+#   name = "eks-cluster-stack"
+#   template_body = <<EOF
+# Description: "Node autoscaler"
+# Resources:
+#   NodeGroup:
+#     Type: AWS::AutoScaling::AutoScalingGroup
+#     Properties:
+#       VPCZoneIdentifier: ["${data.aws_subnets.public.ids[0]}","${data.aws_subnets.public.ids[1]}", "${data.aws_subnets.public.ids[2]}"]
+#       MinSize: "${var.node_group_min_size}"
+#       MaxSize: "${var.node_group_max_size}"
+#       DesiredCapacity: "${var.node_group_desired_capacity}"
+#       HealthCheckType: EC2
+#       LaunchTemplate:
+#         LaunchTemplateId: "${aws_launch_template.node_launch_template.id}"
+#         Version: "${aws_launch_template.node_launch_template.latest_version}"
+#     UpdatePolicy:
+#     # Ignore differences in group size properties caused by scheduled actions
+#       AutoScalingScheduledAction:
+#         IgnoreUnmodifiedGroupSizeProperties: true
+#       AutoScalingRollingUpdate:
+#         MaxBatchSize: 1
+#         MinInstancesInService: "${var.node_group_desired_capacity}"
+#         PauseTime: PT5M
+# Outputs:
+#   NodeAutoScalingGroup:
+#     Description: The autoscaling group
+#     Value: !Ref NodeGroup
+#   EOF
+# }
