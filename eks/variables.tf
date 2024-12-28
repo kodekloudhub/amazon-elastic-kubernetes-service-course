@@ -18,6 +18,14 @@ variable "cluster_role_name" {
   default     = "eksClusterRole"
 }
 
+# In KK playground and for some EKS labs, the role is not predefined.
+# In some other EKS labs, the service role exists already.
+variable "use_predefined_role" {
+  type        = bool
+  description = "Whether to use predefined cluster service role, or create one."
+  default     = false
+}
+
 # KK Playground. Node role must be called 'eks-demo-node'
 variable "node_role_name" {
   type        = string
