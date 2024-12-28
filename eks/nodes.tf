@@ -230,32 +230,32 @@ resource "aws_cloudformation_stack" "autoscaling_group" {
   depends_on = [
     time_sleep.wait_30_seconds
   ]
-  name          = "eks-cluster-stack"
+  name = "eks-cluster-stack"
   template_body = <<EOF
-    Description: "Node autoscaler"
-    Resources:
-    NodeGroup:
-        Type: AWS::AutoScaling::AutoScalingGroup
-        Properties:
-        VPCZoneIdentifier: ["${data.aws_subnets.public.ids[0]}","${data.aws_subnets.public.ids[1]}", "${data.aws_subnets.public.ids[2]}"]
-        MinSize: "${var.node_group_min_size}"
-        MaxSize: "${var.node_group_max_size}"
-        DesiredCapacity: "${var.node_group_desired_capacity}"
-        HealthCheckType: EC2
-        LaunchTemplate:
-            LaunchTemplateId: "${aws_launch_template.node_launch_template.id}"
-            Version: "${aws_launch_template.node_launch_template.latest_version}"
-        UpdatePolicy:
-        # Ignore differences in group size properties caused by scheduled actions
-        AutoScalingScheduledAction:
-            IgnoreUnmodifiedGroupSizeProperties: true
-        AutoScalingRollingUpdate:
-            MaxBatchSize: 1
-            MinInstancesInService: "${var.node_group_desired_capacity}"
-            PauseTime: PT5M
-    Outputs:
-    NodeAutoScalingGroup:
-        Description: The autoscaling group
-        Value: !Ref NodeGroup
+Description: "Node autoscaler"
+Resources:
+  NodeGroup:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      VPCZoneIdentifier: ["${data.aws_subnets.public.ids[0]}","${data.aws_subnets.public.ids[1]}", "${data.aws_subnets.public.ids[2]}"]
+      MinSize: "${var.node_group_min_size}"
+      MaxSize: "${var.node_group_max_size}"
+      DesiredCapacity: "${var.node_group_desired_capacity}"
+      HealthCheckType: EC2
+      LaunchTemplate:
+        LaunchTemplateId: "${aws_launch_template.node_launch_template.id}"
+        Version: "${aws_launch_template.node_launch_template.latest_version}"
+    UpdatePolicy:
+    # Ignore differences in group size properties caused by scheduled actions
+      AutoScalingScheduledAction:
+        IgnoreUnmodifiedGroupSizeProperties: true
+      AutoScalingRollingUpdate:
+        MaxBatchSize: 1
+        MinInstancesInService: "${var.node_group_desired_capacity}"
+        PauseTime: PT5M
+Outputs:
+  NodeAutoScalingGroup:
+    Description: The autoscaling group
+    Value: !Ref NodeGroup
   EOF
 }
