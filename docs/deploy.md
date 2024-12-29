@@ -60,7 +60,7 @@ If you came here from the [Amazon EKS course](https://learn.kodekloud.com/user/c
     Outputs:
 
     NodeAutoScalingGroup = "demo-eks-stack-NodeGroup-UUJRINMIFPLO"
-    NodeInstanceRole = "arn:aws:iam::387779321901:role/demo-eks-node"
+    NodeInstanceRole = "arn:aws:iam::058264119838:role/eksWorkerNodeRole"
     NodeSecurityGroup = "sg-003010e8d8f9f32bd"
     ```
 
