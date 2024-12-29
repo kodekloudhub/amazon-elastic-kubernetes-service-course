@@ -20,6 +20,12 @@ If you came here from the [Amazon EKS course](https://learn.kodekloud.com/user/c
     cd amazon-elastic-kubernetes-service-course/eks
     ```
 
+1. Run the following command. It will check the lab/cloud environment for a few things that need to be correct for the cluster to deploy properly. If it tells you to restart the lab, then please do so.
+
+    ```bash
+    source check-environment.sh
+    ```
+
 1. Initialize Terraform
 
     Initialize the Terraform configuration

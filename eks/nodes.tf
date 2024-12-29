@@ -73,6 +73,11 @@ resource "aws_iam_role_policy_attachment" "node_instance_role_SSMMIC" {
   role       = aws_iam_role.node_instance_role.name
 }
 
+resource "aws_iam_role_policy_attachment" "node_instance_role_loadbalancer" {
+  policy_arn = aws_iam_policy.loadbalancer_policy.arn
+  role       = aws_iam_role.node_instance_role.name
+}
+
 # Instance profile to associate above role with worker nodes
 resource "aws_iam_instance_profile" "node_instance_profile" {
   name = "NodeInstanceProfile"
@@ -230,7 +235,7 @@ resource "aws_cloudformation_stack" "autoscaling_group" {
   depends_on = [
     time_sleep.wait_30_seconds
   ]
-  name = "eks-cluster-stack"
+  name          = "eks-cluster-stack"
   template_body = <<EOF
 Description: "Node autoscaler"
 Resources:

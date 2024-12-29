@@ -11,6 +11,9 @@ module "create_eksClusterRole" {
   source = "./modules/create-service-role"
 
   cluster_role_name = var.cluster_role_name
+  additional_policy_arns = [
+    aws_iam_policy.loadbalancer_policy.arn
+  ]
 }
 
 ####################################################################
@@ -35,14 +38,5 @@ resource "aws_eks_cluster" "demo_eks" {
     authentication_mode                         = "CONFIG_MAP"
     bootstrap_cluster_creator_admin_permissions = true
   }
-
-  # Ensure that IAM Role permissions are created before and deleted after EKS Cluster handling.
-  # Otherwise, EKS will not be able to properly delete EKS managed EC2 infrastructure such as Security Groups.
-#   depends_on = [
-#     module.create_eksClusterRole
-#   ]
 }
 
-# data "aws_eks_cluster" "demo_eks" {
-#   name = aws_eks_cluster.demo_eks.name
-# }
