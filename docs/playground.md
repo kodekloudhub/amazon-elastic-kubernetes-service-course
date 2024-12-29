@@ -10,7 +10,8 @@ This terraform code will create an EKS cluster called `demo-eks` and will have t
 
 [Click here](https://kodekloud.com/playgrounds/playground-aws) to start a playground, and click `START LAB` to request a new AWS Cloud Playground instance. After a few seconds, you will receive your credential to access AWS Cloud console.
 
-Note that you must have KodeKloud Pro subscription to run an AWS playground. If you have your own AWS account, this should still work, however *you* will bear the cost for any resources created until you delete them.
+Note that you must have KodeKloud Pro subscription to run an AWS playground. If you have [your own AWS account](https://aws.amazon.com/free/), this should still work, however *you* will bear the cost for any resources created until you delete them. Be aware that not all resources are free in a "free" account!
+That includes EKS control planes (approx 10 cents/hour).
 
 This demo can be run from either your own laptop or from the AWS CloudShell
 * From your laptop
