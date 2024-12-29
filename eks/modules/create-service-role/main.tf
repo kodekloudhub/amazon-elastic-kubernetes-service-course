@@ -1,3 +1,6 @@
+# This module is conditionally invoked to create the EKS cluster service role
+# if it is not already present. In some EKS course labs, it is present.
+
 variable "cluster_role_name" {
   type        = string
   description = "Name of the cluster role"
@@ -34,8 +37,8 @@ resource "aws_iam_role_policy_attachment" "eksClusterRole_AmazonEKSClusterPolicy
 }
 
 resource "aws_iam_role_policy_attachment" "eksClusterRole_additional_policies" {
-  for_each   = {
-    for a in var.additional_policy_arns : substr(sha256(a), 0, 8) => a
+  for_each = {
+    for index, arn in var.additional_policy_arns : index => arn
   }
   policy_arn = each.value
   role       = aws_iam_role.eksClusterRole.name
