@@ -34,8 +34,10 @@ resource "aws_iam_role_policy_attachment" "eksClusterRole_AmazonEKSClusterPolicy
 }
 
 resource "aws_iam_role_policy_attachment" "eksClusterRole_additional_policies" {
-  for_each   = toset(var.additional_policy_arns)
-  policy_arn = each.key
+  for_each   = {
+    for a in var.var.additional_policy_arns : substr(sha256(a), 0, 8) => a
+  }
+  policy_arn = each.value
   role       = aws_iam_role.eksClusterRole.name
 }
 
