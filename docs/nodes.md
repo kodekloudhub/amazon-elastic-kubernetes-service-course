@@ -64,7 +64,7 @@ If you came here from the [Amazon EKS course](https://learn.kodekloud.com/user/c
 
 ## Personal AWS Account
 
-If you deployed the cluster into your own AWS account, you should delete resources when finished to avoid unwanted charges! Run the following:
+If you deployed the cluster into your own AWS account, you should delete resources when finished to avoid unwanted charges and also any risk of account comprimise! This is *not* a security focused production grade deployment! Run the following:
 
 ```
 terraform destroy
