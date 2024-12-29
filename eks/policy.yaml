@@ -1,3 +1,8 @@
+# This policy combines permissions for
+# - Deploying locadbalancer services
+# - Creating EBS storage for PVs
+#
+# It is loaded by policies.tf
 Version: "2012-10-17"
 Statement:
   - Effect: Allow
