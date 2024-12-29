@@ -1,5 +1,5 @@
 resource "aws_iam_policy" "loadbalancer_policy" {
-  name        = "loadbalancer_policy"
+  name        = var.additional_policy_name
   path        = "/"
   description = "Policy for granting rights to create loadbalancer services"
 

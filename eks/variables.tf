@@ -33,6 +33,12 @@ variable "node_role_name" {
   default     = "eks-demo-node"
 }
 
+variable "additional_policy_name" {
+    type = string
+    description = "Name of IAM::Policy created for additional permissions"
+    default = "eksPolicy"
+}
+
 variable "node_group_desired_capacity" {
   type        = number
   description = "Desired capacity of Node Group ASG."
