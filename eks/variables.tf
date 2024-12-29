@@ -26,11 +26,11 @@ variable "use_predefined_role" {
   default     = false
 }
 
-# KK Playground. Node role must be called 'eks-demo-node'
+# KK Playground. Node role must be called 'eksWorkerNodeRole'
 variable "node_role_name" {
   type        = string
   description = "Name of node role"
-  default     = "eks-demo-node"
+  default     = "eksWorkerNodeRole"
 }
 
 variable "additional_policy_name" {
