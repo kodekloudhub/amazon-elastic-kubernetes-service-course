@@ -61,3 +61,11 @@ If you came here from the [Amazon EKS course](https://learn.kodekloud.com/user/c
     You should see 3 worker nodes in ready state. Note that with EKS you do not see control plane nodes, as they are managed by AWS.
 
     You can also view the completed cluster in the [EKS Console](https://us-east-1.console.aws.amazon.com/eks/home?region=us-east-1).
+
+## Personal AWS Account
+
+If you deployed the cluster into your own AWS account, you should delete resources when finished to avoid unwanted charges! Run the following:
+
+```
+terraform destroy
+```
