@@ -22,7 +22,7 @@ for suffix in "${required_suffixes[@]}"; do
     zone=$(echo "$available_zones" | jq -r ".[] | select(endswith(\"$suffix\"))")
 
     if [ -z "$zone" ]; then
-        echo "${RED}Error: Availability zone with suffix '$suffix' is missing.${NC}"
+        echo -e "${RED}Error: Availability zone with suffix '$suffix' is missing.${NC}"
         echo "Please reset the lab and try again."
         echo "If the issue persists, raise a question on the forums."
         return
@@ -39,7 +39,7 @@ done
 
 # If any required subnets are missing, exit with an error
 if [ ${#missing_subnets[@]} -ne 0 ]; then
-    echo "${RED}Error: Missing subnets in the following availability zones: ${missing_subnets[*]}${NC}"
+    echo -e "${RED}Error: Missing subnets in the following availability zones: ${missing_subnets[*]}${NC}"
     echo "Please reset the lab and try again."
     echo "If the issue persists, raise a question on the forums."
     echo
