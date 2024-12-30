@@ -48,11 +48,11 @@ If you came here from the [Amazon EKS course](https://learn.kodekloud.com/user/c
         kubectl apply -f aws-auth-cm.yaml
         ```
 
-    1. Wait 2-3 minutes for node join to complete, then
+    1. Wait around 60 seconds for all nodes to join.
 
 1. Verify the Nodes
 
-    Verify that the nodes have joined the cluster and are in the `Ready` state
+    Verify that the nodes have joined the cluster and are in the `Ready` state. You may need to run the following several times until all nodes are ready.
 
     ```bash
     kubectl get node -o wide

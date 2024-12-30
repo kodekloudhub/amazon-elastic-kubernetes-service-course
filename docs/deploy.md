@@ -66,16 +66,6 @@ If you came here from the [Amazon EKS course](https://learn.kodekloud.com/user/c
 
     Make sure to take note of the Terraform outputs, particularly the `NodeInstanceRole`, as you will need it for the next task.
 
-Should any of the above fail with an error like the following it means the AWS environment did not start with sufficient subnets to deploy a cluster. Please reset the lab and try again. If it persists, then please report it in one of the community forums.
 
-```
-│ Error: Invalid index
-│
-│   on eks.tf line 45, in resource "aws_eks_cluster" "demo_eks":
-│   45:       data.aws_subnets.public.ids[2]
-│
-│       data.aws_subnets.public.ids is list of string with 2 elements
-```
-
-Next: [Set up access and join nodes](./nodes.md)
+Now, proceed to [Set up access and join nodes](./nodes.md)
 
