@@ -11,14 +11,15 @@ This terraform code will create an EKS cluster called `demo-eks` and will have t
 [Click here](https://kodekloud.com/playgrounds/playground-aws) to start a playground, and click `START LAB` to request a new AWS Cloud Playground instance. After a few seconds, you will receive your credential to access AWS Cloud console.
 
 Note that you must have KodeKloud Pro subscription to run an AWS playground. If you have [your own AWS account](https://aws.amazon.com/free/), this should still work, however *you* will bear the cost for any resources created until you delete them. Be aware that not all resources are free in a "free" account!
-That includes EKS control planes (approx 10 cents/hour).
+That includes EKS control planes (approx. 10 cents/hour).
 
 This demo can be run from either your own laptop or from the AWS CloudShell
 * From your laptop
-    * You must have working versions of [terraform](https://developer.hashicorp.com/terraform/install), [kubectl](https://kubernetes.io/docs/tasks/tools/#kubectl) and the [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html#getting-started-install-instructions) installed on your laptop. This is not a tutorial on how to install these things.
+    * You must have working versions of [git](https://github.com/git-guides/install-git), [terraform](https://developer.hashicorp.com/terraform/install), [kubectl](https://kubernetes.io/docs/tasks/tools/#kubectl), [jq](https://jqlang.github.io/jq/) (Mac/Linux only) and the [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html#getting-started-install-instructions) installed on your laptop. This is not a tutorial on how to install these things.
     * You will need to go to the IAM console in AWS, then create and download access keys for the playground user, then export these as `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` in your terminal's environment.
+    * If your laptop is Windows, you must run the commands from a PowerShell prompt.
 * From CloudShell
-    * No special requirements.
+    * No special requirements - it just works!
     * CloudShell is a Linux terminal you run inside the AWS console and has most of what we need preconfigured. [Click here](https://us-east-1.console.aws.amazon.com/cloudshell/home?region=us-east-1) to open CloudShell.
 
 From here on, all commands must be run at the terminal (your own or CloudShell) as chosen above.

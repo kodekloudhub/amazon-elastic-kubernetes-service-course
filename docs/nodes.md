@@ -1,7 +1,5 @@
 # Set up access and join nodes
 
-If you came here from the [Amazon EKS course](https://learn.kodekloud.com/user/courses/aws-eks), this is lab step 4.
-
 1.  Create a KUBECONFIG for `kubectl`
 
     ```bash
@@ -64,7 +62,7 @@ If you came here from the [Amazon EKS course](https://learn.kodekloud.com/user/c
 
 ## Personal AWS Account
 
-If you deployed the cluster into your own AWS account, you should delete resources when finished to avoid unwanted charges and also any risk of account comprimise! This is *not* a security focused production grade deployment! Run the following:
+If you deployed the cluster into your own AWS account, you should delete resources when finished to avoid unwanted charges and also any risk of account compromise! This is *not* a security focused production grade deployment! Run the following:
 
 ```
 terraform destroy

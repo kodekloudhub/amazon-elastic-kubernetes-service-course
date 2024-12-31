@@ -20,11 +20,19 @@ If you came here from the [Amazon EKS course](https://learn.kodekloud.com/user/c
     cd amazon-elastic-kubernetes-service-course/eks
     ```
 
-1. Run the following command. It will check the lab/cloud environment for a few things that need to be correct for the cluster to deploy properly. If it tells you to restart the lab, then please do so.
+1. Run the following command. It will check the lab/cloud environment for a few things that need to be correct for the cluster to deploy properly. If it tells you to restart the lab, then please do so. If it still tells you to restart the lab after 2 or 3 attempts, then please report in the forums.
 
-    ```bash
-    source check-environment.sh
-    ```
+    * If *and only if* you are running this lab directly from a Windows PowerShell terminal, run the following
+
+        ```text
+        .\check-environment.ps1
+        ```
+
+    * **Otherwise** for everything else (KodeKloud lab terminal, CloudShell, any Linux or Mac), instead run this:
+
+        ```bash
+        source check-environment.sh
+        ```
 
 1. Initialize Terraform
 
