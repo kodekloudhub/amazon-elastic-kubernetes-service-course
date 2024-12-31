@@ -25,15 +25,11 @@ data "aws_subnets" "public" {
     values = [data.aws_vpc.default_vpc.id]
   }
   filter {
-    # Occasionally VPC starts with fewer than 6 AZs
-    # We can choose 3 from this set.
     name = "availability-zone"
     values = [
       "${var.aws_region}a",
       "${var.aws_region}b",
       "${var.aws_region}c",
-      "${var.aws_region}d",
-      "${var.aws_region}f"
     ]
   }
 }
