@@ -1,7 +1,5 @@
 # Set up access and join nodes
 
-If you came here from the [Amazon EKS course](https://learn.kodekloud.com/user/courses/aws-eks), this is lab step 4.
-
 1.  Create a KUBECONFIG for `kubectl`
 
     ```bash
@@ -48,11 +46,11 @@ If you came here from the [Amazon EKS course](https://learn.kodekloud.com/user/c
         kubectl apply -f aws-auth-cm.yaml
         ```
 
-    1. Wait 2-3 minutes for node join to complete, then
+    1. Wait around 60 seconds for all nodes to join.
 
 1. Verify the Nodes
 
-    Verify that the nodes have joined the cluster and are in the `Ready` state
+    Verify that the nodes have joined the cluster and are in the `Ready` state. You may need to run the following several times until all nodes are ready.
 
     ```bash
     kubectl get node -o wide
@@ -61,3 +59,11 @@ If you came here from the [Amazon EKS course](https://learn.kodekloud.com/user/c
     You should see 3 worker nodes in ready state. Note that with EKS you do not see control plane nodes, as they are managed by AWS.
 
     You can also view the completed cluster in the [EKS Console](https://us-east-1.console.aws.amazon.com/eks/home?region=us-east-1).
+
+## Personal AWS Account
+
+If you deployed the cluster into your own AWS account, you should delete resources when finished to avoid unwanted charges and also any risk of account compromise! This is *not* a security focused production grade deployment! Run the following:
+
+```
+terraform destroy
+```

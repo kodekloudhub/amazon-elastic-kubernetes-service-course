@@ -20,6 +20,20 @@ If you came here from the [Amazon EKS course](https://learn.kodekloud.com/user/c
     cd amazon-elastic-kubernetes-service-course/eks
     ```
 
+1. Run the following command. It will check the lab/cloud environment for a few things that need to be correct for the cluster to deploy properly. If it tells you to restart the lab, then please do so. If it still tells you to restart the lab after 2 or 3 attempts, then please report in the forums.
+
+    * If *and only if* you are running this lab directly from a Windows PowerShell terminal, run the following
+
+        ```text
+        .\check-environment.ps1
+        ```
+
+    * **Otherwise** for everything else (KodeKloud lab terminal, CloudShell, any Linux or Mac), instead run this:
+
+        ```bash
+        source check-environment.sh
+        ```
+
 1. Initialize Terraform
 
     Initialize the Terraform configuration
@@ -54,22 +68,12 @@ If you came here from the [Amazon EKS course](https://learn.kodekloud.com/user/c
     Outputs:
 
     NodeAutoScalingGroup = "demo-eks-stack-NodeGroup-UUJRINMIFPLO"
-    NodeInstanceRole = "arn:aws:iam::387779321901:role/demo-eks-node"
+    NodeInstanceRole = "arn:aws:iam::058264119838:role/eksWorkerNodeRole"
     NodeSecurityGroup = "sg-003010e8d8f9f32bd"
     ```
 
     Make sure to take note of the Terraform outputs, particularly the `NodeInstanceRole`, as you will need it for the next task.
 
-Should any of the above fail with an error like the following it means the AWS environment did not start with sufficient subnets to deploy a cluster. Please reset the lab and try again. If it persists, then please report it in one of the community forums.
 
-```
-│ Error: Invalid index
-│
-│   on eks.tf line 45, in resource "aws_eks_cluster" "demo_eks":
-│   45:       data.aws_subnets.public.ids[2]
-│
-│       data.aws_subnets.public.ids is list of string with 2 elements
-```
-
-Next: [Set up access and join nodes](./nodes.md)
+Now, proceed to [Set up access and join nodes](./nodes.md)
 

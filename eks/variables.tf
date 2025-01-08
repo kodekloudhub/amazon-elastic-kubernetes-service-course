@@ -18,11 +18,28 @@ variable "cluster_role_name" {
   default     = "eksClusterRole"
 }
 
-# KK Playground. Node role must be called 'eks-demo-node'
+# In KK playground and for some EKS labs, the role is not predefined.
+# In some other EKS labs, the service role exists already.
+# This variable is initialized as an environment variable source
+# by check-environment.sh if it is required to be "true"
+variable "use_predefined_role" {
+  type        = bool
+  description = "Whether to use predefined cluster service role, or create one."
+  default     = false
+}
+
+# KK Playground. Node role must be called 'eksWorkerNodeRole'
 variable "node_role_name" {
   type        = string
   description = "Name of node role"
-  default     = "eks-demo-node"
+  default     = "eksWorkerNodeRole"
+}
+
+# KK Playground. Policy role must be called 'eksPolicy'
+variable "additional_policy_name" {
+    type = string
+    description = "Name of IAM::Policy created for additional permissions"
+    default = "eksPolicy"
 }
 
 variable "node_group_desired_capacity" {

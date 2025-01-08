@@ -11,11 +11,11 @@ variable "aws_region" {
 
 provider "aws" {
   region = var.aws_region
-  default_tags {
-    tags = {
-      "kubernetes.io/cluster/demo-eks" = "owned"
-    }
-  }
+  #   default_tags {
+  #     tags = {
+  #       "kubernetes.io/cluster/demo-eks" = "owned"
+  #     }
+  #   }
 }
 
 output "NodeInstanceRole" {

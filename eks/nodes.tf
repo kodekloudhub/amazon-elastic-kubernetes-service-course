@@ -50,27 +50,32 @@ data "aws_iam_policy_document" "assume_role_ec2" {
 resource "aws_iam_role" "node_instance_role" {
   name               = var.node_role_name
   assume_role_policy = data.aws_iam_policy_document.assume_role_ec2.json
-  path = "/"
+  path               = "/"
 }
 
 resource "aws_iam_role_policy_attachment" "node_instance_role_EKSWNP" {
-    policy_arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
-    role = aws_iam_role.node_instance_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
+  role       = aws_iam_role.node_instance_role.name
 }
 
 resource "aws_iam_role_policy_attachment" "node_instance_role_EKSCNIP" {
-    policy_arn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
-    role = aws_iam_role.node_instance_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
+  role       = aws_iam_role.node_instance_role.name
 }
 
 resource "aws_iam_role_policy_attachment" "node_instance_role_EKSCRRO" {
-    policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
-    role = aws_iam_role.node_instance_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+  role       = aws_iam_role.node_instance_role.name
 }
 
 resource "aws_iam_role_policy_attachment" "node_instance_role_SSMMIC" {
-    policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
-    role = aws_iam_role.node_instance_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+  role       = aws_iam_role.node_instance_role.name
+}
+
+resource "aws_iam_role_policy_attachment" "node_instance_role_loadbalancer" {
+  policy_arn = aws_iam_policy.loadbalancer_policy.arn
+  role       = aws_iam_role.node_instance_role.name
 }
 
 # Instance profile to associate above role with worker nodes
@@ -113,7 +118,7 @@ resource "aws_vpc_security_group_egress_rule" "node_egress_all" {
 resource "aws_vpc_security_group_ingress_rule" "node_security_group_from_control_plane_ingress" {
   description                  = "Allow worker Kubelets and pods to receive communication from the cluster control plane"
   security_group_id            = aws_security_group.node_security_group.id
-  referenced_security_group_id = data.aws_eks_cluster.deme_eks.vpc_config[0].cluster_security_group_id
+  referenced_security_group_id = aws_eks_cluster.demo_eks.vpc_config[0].cluster_security_group_id
   from_port                    = 1025
   to_port                      = 65535
   ip_protocol                  = "TCP"
@@ -122,7 +127,7 @@ resource "aws_vpc_security_group_ingress_rule" "node_security_group_from_control
 resource "aws_vpc_security_group_ingress_rule" "control_plane_egress_to_node_security_group_on_443" {
   description                  = "Allow pods running extension API servers on port 443 to receive communication from cluster control plane"
   security_group_id            = aws_security_group.node_security_group.id
-  referenced_security_group_id = data.aws_eks_cluster.deme_eks.vpc_config[0].cluster_security_group_id
+  referenced_security_group_id = aws_eks_cluster.demo_eks.vpc_config[0].cluster_security_group_id
   from_port                    = 443
   to_port                      = 443
   ip_protocol                  = "TCP"
@@ -139,13 +144,13 @@ resource "aws_vpc_security_group_ingress_rule" "cluster_control_plane_security_g
   to_port                      = 443
   ip_protocol                  = "TCP"
   referenced_security_group_id = aws_security_group.node_security_group.id
-  security_group_id            = data.aws_eks_cluster.deme_eks.vpc_config[0].cluster_security_group_id
+  security_group_id            = aws_eks_cluster.demo_eks.vpc_config[0].cluster_security_group_id
 }
 
 resource "aws_vpc_security_group_egress_rule" "control_plane_egress_to_node_security_group" {
   description                  = "Allow the cluster control plane to communicate with worker Kubelet and pods"
   referenced_security_group_id = aws_security_group.node_security_group.id
-  security_group_id            = data.aws_eks_cluster.deme_eks.vpc_config[0].cluster_security_group_id
+  security_group_id            = aws_eks_cluster.demo_eks.vpc_config[0].cluster_security_group_id
   from_port                    = 1025
   to_port                      = 65535
   ip_protocol                  = "TCP"
@@ -154,7 +159,7 @@ resource "aws_vpc_security_group_egress_rule" "control_plane_egress_to_node_secu
 resource "aws_vpc_security_group_egress_rule" "control_plane_egress_to_node_security_group_on_443" {
   description                  = "Allow the cluster control plane to communicate with pods running extension API servers on port 443"
   referenced_security_group_id = aws_security_group.node_security_group.id
-  security_group_id            = data.aws_eks_cluster.deme_eks.vpc_config[0].cluster_security_group_id
+  security_group_id            = aws_eks_cluster.demo_eks.vpc_config[0].cluster_security_group_id
   from_port                    = 443
   to_port                      = 443
   ip_protocol                  = "TCP"
@@ -219,7 +224,7 @@ resource "aws_launch_template" "node_launch_template" {
 resource "time_sleep" "wait_30_seconds" {
   depends_on = [
     aws_launch_template.node_launch_template
-    ]
+  ]
 
   create_duration = "30s"
 }
@@ -230,7 +235,7 @@ resource "aws_cloudformation_stack" "autoscaling_group" {
   depends_on = [
     time_sleep.wait_30_seconds
   ]
-  name = "eks-cluster-stack"
+  name          = "eks-cluster-stack"
   template_body = <<EOF
 Description: "Node autoscaler"
 Resources:
