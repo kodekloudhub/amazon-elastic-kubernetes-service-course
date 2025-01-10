@@ -59,8 +59,6 @@ fi
 
 echo -e "- ${GREEN}Running in correct region: us-east-1${NC}"
 
-echo "- Checking for default VPC"
-
 VPC_ID=$(aws ec2 describe-vpcs --filters "Name=isDefault,Values=true" --query "Vpcs[0].VpcId" --output text)
 
 if [ "$VPC_ID" == "None" ]; then
