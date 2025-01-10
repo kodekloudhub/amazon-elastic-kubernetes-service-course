@@ -6,7 +6,6 @@ MAGENTA="\e[0;35m"
 NC="\e[0m"
 
 echo "Checking environment readiness to deploy a cluster..."
-echo
 
 if [[ -d "/Applications" ]] && [[ -d "/Library" ]] ; then
     echo -e "- ${MAGENTA}Detected MacOS terminal${NC}"
