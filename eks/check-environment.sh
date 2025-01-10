@@ -101,7 +101,7 @@ else
     return
 fi
 
-echo "- Checking for required subnets and theat they are porperly configured..."
+echo "- Checking for required subnets and that they are porperly configured..."
 
 # Fetch the list of availability zones
 available_zones=$(aws ec2 describe-availability-zones --query 'AvailabilityZones[].ZoneName' --output json)
