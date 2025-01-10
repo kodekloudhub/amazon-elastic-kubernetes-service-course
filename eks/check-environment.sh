@@ -71,6 +71,36 @@ fi
 
 echo -e "${GREEN}- Using default VPC: ${VPC_ID}${NC}"
 
+# Check if the Default VPC Has an Internet Gateway
+IGW_ID=$(aws ec2 describe-internet-gateways --filters "Name=attachment.vpc-id,Values=$VPC_ID" --query "InternetGateways[0].InternetGatewayId" --output text)
+
+if [ "$IGW_ID" == "None" ]; then
+    echo -e "${RED}Error: Default VPC $VPC_ID does not have an Internet Gateway attached.${NC}"
+    return
+fi
+
+echo -e "${GREEN}-Default VPC $VPC_ID has an Internet Gateway: ${IGW_ID}${NC}"
+
+# Step 3: Get the Main Route Table for the Default VPC
+MAIN_ROUTE_TABLE_ID=$(aws ec2 describe-route-tables --filters "Name=vpc-id,Values=$VPC_ID" "Name=association.main,Values=true" --query "RouteTables[0].RouteTableId" --output text)
+
+if [ "$MAIN_ROUTE_TABLE_ID" == "None" ]; then
+    echo -e "${RED}Error: Default VPC $VPC_ID does not have a main route table.${NC}"
+    return
+fi
+
+echo -e "- ${GREEN}The main route table for Default VPC $VPC_ID is: ${MAIN_ROUTE_TABLE_ID}${NC}"
+
+# Step 4: Check if the Main Route Table Has a Route to the Internet Gateway
+ROUTE_TO_IGW=$(aws ec2 describe-route-tables --route-table-ids $MAIN_ROUTE_TABLE_ID --query "RouteTables[0].Routes[?GatewayId=='$IGW_ID'].GatewayId" --output text)
+
+if [ "$ROUTE_TO_IGW" == "$IGW_ID" ]; then
+    echo -e "${GREEN}The main route table $MAIN_ROUTE_TABLE_ID has a route to the Internet Gateway $IGW_ID.${RED}"
+else
+    echo -e "${GREEN}The main route table $MAIN_ROUTE_TABLE_ID does not have a route to the Internet Gateway $IGW_ID.${RED}"
+    return
+fi
+
 echo "- Checking for required subnets..."
 
 # Fetch the list of availability zones
@@ -80,8 +110,10 @@ available_zones=$(aws ec2 describe-availability-zones --query 'AvailabilityZones
 required_suffixes=("a" "b" "c")
 
 # Initialize a list to track missing subnets or misconfigured attributes
+# Initialize lists to track errors
 missing_subnets=()
 map_public_ip_errors=()
+route_table_errors=()
 
 # Check for a subnet in each required zone
 for suffix in "${required_suffixes[@]}"; do
@@ -89,9 +121,9 @@ for suffix in "${required_suffixes[@]}"; do
     zone=$(echo "$available_zones" | jq -r ".[] | select(endswith(\"$suffix\"))")
 
     if [ -z "$zone" ]; then
-        echo -e "${RED}Error: Availability zone with suffix '$suffix' is missing.${NC}"
+        echo "Error: Availability zone with suffix '$suffix' is missing."
         echo "Please reset the lab and try again."
-        return
+        exit 1
     fi
 
     # Check for subnets in the zone within the specified VPC
@@ -103,27 +135,52 @@ for suffix in "${required_suffixes[@]}"; do
     if [ "$subnet_count" -eq 0 ]; then
         missing_subnets+=("$zone")
     else
-        # Verify MapPublicIpOnLaunch for all found subnets
-        map_public_ip=$(echo "$subnet_info" | jq -r '.[].MapPublicIpOnLaunch' | grep -v "true")
+        # Store the subnets in a variable for iteration
+        subnets=$(echo "$subnet_info" | jq -c '.[]')
 
-        if [ -n "$map_public_ip" ]; then
-            map_public_ip_errors+=("$zone")
-        fi
+        while read -r subnet; do
+            subnet_id=$(echo "$subnet" | jq -r '.SubnetId')
+            map_public_ip=$(echo "$subnet" | jq -r '.MapPublicIpOnLaunch')
+
+            # Verify MapPublicIpOnLaunch
+            if [ "$map_public_ip" != "true" ]; then
+                map_public_ip_errors+=("$subnet_id ($zone)")
+            fi
+
+            # Verify Route Table Association
+            subnet_route_table_id=$(aws ec2 describe-route-tables --filters "Name=association.subnet-id,Values=$subnet_id" \
+                --query "RouteTables[0].RouteTableId" --output text)
+
+            if [ "$subnet_route_table_id" == "None" ]; then
+                subnet_route_table_id=""
+            fi
+
+            if [ -n "$subnet_route_table_id" ] && [ "$subnet_route_table_id" != "$MAIN_ROUTE_TABLE_ID" ]; then
+                route_table_errors+=("$subnet_id ($zone)")
+            fi
+        done <<< "$subnets"
     fi
 done
 
 # Handle missing subnets
 if [ ${#missing_subnets[@]} -ne 0 ]; then
-    echo -e "${RED}Error: Missing subnets in the following availability zones: ${missing_subnets[*]}${NC}"
+    echo "Error: Missing subnets in the following availability zones: ${missing_subnets[*]}"
     echo "Please reset the lab and try again."
-    return
+    exit 1
 fi
 
 # Handle subnets with incorrect MapPublicIpOnLaunch attribute
 if [ ${#map_public_ip_errors[@]} -ne 0 ]; then
-    echo -e "${RED}Error: The following availability zones have subnets with MapPublicIpOnLaunch set to false: ${map_public_ip_errors[*]}${NC}"
+    echo "Error: The following subnets have MapPublicIpOnLaunch set to false: ${map_public_ip_errors[*]}"
     echo "Please reset the lab and try again."
-    return
+    exit 1
+fi
+
+# Handle subnets with incorrect Route Table Associations
+if [ ${#route_table_errors[@]} -ne 0 ]; then
+    echo "Error: The following subnets are not associated with the main route table or are explicitly associated with a different route table: ${route_table_errors[*]}"
+    echo "Please reset the lab and try again."
+    exit 1
 fi
 
 # We have the zones.
