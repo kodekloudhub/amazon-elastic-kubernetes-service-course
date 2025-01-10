@@ -79,7 +79,7 @@ if [ "$IGW_ID" == "None" ]; then
     return
 fi
 
-echo -e "${GREEN}-Default VPC $VPC_ID has an Internet Gateway: ${IGW_ID}${NC}"
+echo -e "${GREEN}- Default VPC $VPC_ID has an Internet Gateway: ${IGW_ID}${NC}"
 
 # Step 3: Get the Main Route Table for the Default VPC
 MAIN_ROUTE_TABLE_ID=$(aws ec2 describe-route-tables --filters "Name=vpc-id,Values=$VPC_ID" "Name=association.main,Values=true" --query "RouteTables[0].RouteTableId" --output text)
@@ -89,19 +89,19 @@ if [ "$MAIN_ROUTE_TABLE_ID" == "None" ]; then
     return
 fi
 
-echo -e "- ${GREEN}The main route table for Default VPC $VPC_ID is: ${MAIN_ROUTE_TABLE_ID}${NC}"
+echo -e "${GREEN}- The main route table for Default VPC $VPC_ID is: ${MAIN_ROUTE_TABLE_ID}${NC}"
 
 # Step 4: Check if the Main Route Table Has a Route to the Internet Gateway
 ROUTE_TO_IGW=$(aws ec2 describe-route-tables --route-table-ids $MAIN_ROUTE_TABLE_ID --query "RouteTables[0].Routes[?GatewayId=='$IGW_ID'].GatewayId" --output text)
 
 if [ "$ROUTE_TO_IGW" == "$IGW_ID" ]; then
-    echo -e "${GREEN}The main route table $MAIN_ROUTE_TABLE_ID has a route to the Internet Gateway $IGW_ID.${RED}"
+    echo -e "${GREEN}- The main route table $MAIN_ROUTE_TABLE_ID has a route to the Internet Gateway $IGW_ID.${RED}"
 else
-    echo -e "${GREEN}The main route table $MAIN_ROUTE_TABLE_ID does not have a route to the Internet Gateway $IGW_ID.${RED}"
+    echo -e "${RED}The main route table $MAIN_ROUTE_TABLE_ID does not have a route to the Internet Gateway $IGW_ID.${RED}"
     return
 fi
 
-echo "- Checking for required subnets..."
+echo "- Checking for required subnets and theat they are porperly configured..."
 
 # Fetch the list of availability zones
 available_zones=$(aws ec2 describe-availability-zones --query 'AvailabilityZones[].ZoneName' --output json)
@@ -121,7 +121,7 @@ for suffix in "${required_suffixes[@]}"; do
     zone=$(echo "$available_zones" | jq -r ".[] | select(endswith(\"$suffix\"))")
 
     if [ -z "$zone" ]; then
-        echo "Error: Availability zone with suffix '$suffix' is missing."
+        echo -e "${RED}Error: Availability zone with suffix '$suffix' is missing.${NC}"
         echo "Please reset the lab and try again."
         exit 1
     fi
@@ -162,27 +162,29 @@ for suffix in "${required_suffixes[@]}"; do
     fi
 done
 
+err=0
 # Handle missing subnets
 if [ ${#missing_subnets[@]} -ne 0 ]; then
-    echo "Error: Missing subnets in the following availability zones: ${missing_subnets[*]}"
-    echo "Please reset the lab and try again."
-    exit 1
+    echo -e "${RED}Error: Missing subnets in the following availability zones: ${missing_subnets[*]}${NC}"
+    err=1
 fi
 
 # Handle subnets with incorrect MapPublicIpOnLaunch attribute
 if [ ${#map_public_ip_errors[@]} -ne 0 ]; then
-    echo "Error: The following subnets have MapPublicIpOnLaunch set to false: ${map_public_ip_errors[*]}"
-    echo "Please reset the lab and try again."
-    exit 1
+    echo -e "${RED}Error: The following subnets have MapPublicIpOnLaunch set to false: ${map_public_ip_errors[*]}${NC}"
+    err=1
 fi
 
 # Handle subnets with incorrect Route Table Associations
 if [ ${#route_table_errors[@]} -ne 0 ]; then
-    echo "Error: The following subnets are not associated with the main route table or are explicitly associated with a different route table: ${route_table_errors[*]}"
-    echo "Please reset the lab and try again."
-    exit 1
+    echo -e "${RED}Error: The following subnets are not associated with the main route table or are explicitly associated with a different route table: ${route_table_errors[*]}${NC}"
+    err=1
 fi
 
+if [ $err -eq 1 ] ; then
+    echo "Please reset the lab and try again."
+    return
+fi
 # We have the zones.
 # Check for eksClusterRole being present and flag terraform accordingly.
 if aws iam get-role --role-name eksClusterRole > /dev/null 2>&1 ; then
