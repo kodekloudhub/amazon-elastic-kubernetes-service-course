@@ -95,9 +95,9 @@ echo -e "${GREEN}- The main route table for Default VPC $VPC_ID is: ${MAIN_ROUTE
 ROUTE_TO_IGW=$(aws ec2 describe-route-tables --route-table-ids $MAIN_ROUTE_TABLE_ID --query "RouteTables[0].Routes[?GatewayId=='$IGW_ID'].GatewayId" --output text)
 
 if [ "$ROUTE_TO_IGW" == "$IGW_ID" ]; then
-    echo -e "${GREEN}- The main route table $MAIN_ROUTE_TABLE_ID has a route to the Internet Gateway $IGW_ID.${RED}"
+    echo -e "${GREEN}- The main route table $MAIN_ROUTE_TABLE_ID has a route to the Internet Gateway $IGW_ID.${NC}"
 else
-    echo -e "${RED}The main route table $MAIN_ROUTE_TABLE_ID does not have a route to the Internet Gateway $IGW_ID.${RED}"
+    echo -e "${RED}The main route table $MAIN_ROUTE_TABLE_ID does not have a route to the Internet Gateway $IGW_ID.${NC}"
     return
 fi
 
