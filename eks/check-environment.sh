@@ -50,7 +50,7 @@ fi
 
 if [[ "$current_region" != "us-east-1" ]]; then
     if [[ -n "$current_region" ]]; then
-        echo "${RED}The current region is ${current_region}. This must be deployed in us-east-1.${NC}"
+        echo -e "${RED}The current region is ${current_region}. This must be deployed in us-east-1.${NC}"
         return
     fi
 
@@ -59,6 +59,18 @@ if [[ "$current_region" != "us-east-1" ]]; then
 fi
 
 echo -e "- ${GREEN}Running in correct region: us-east-1${NC}"
+
+echo "- Checking for default VPC"
+
+VPC_ID=$(aws ec2 describe-vpcs --filters "Name=isDefault,Values=true" --query "Vpcs[0].VpcId" --output text)
+
+if [ "$VPC_ID" == "None" ]; then
+  echo "${RED}Error: No default VPC found.${NC}"
+  return
+fi
+
+echo -e "${GREEN}- Using default VPC: ${VPC_ID}${NC}"
+
 echo "- Checking for required subnets..."
 
 # Fetch the list of availability zones
@@ -67,8 +79,9 @@ available_zones=$(aws ec2 describe-availability-zones --query 'AvailabilityZones
 # Define the required suffixes
 required_suffixes=("a" "b" "c")
 
-# Initialize a flag to track missing subnets
+# Initialize a list to track missing subnets or misconfigured attributes
 missing_subnets=()
+map_public_ip_errors=()
 
 # Check for a subnet in each required zone
 for suffix in "${required_suffixes[@]}"; do
@@ -81,20 +94,35 @@ for suffix in "${required_suffixes[@]}"; do
         return
     fi
 
-    # Check for subnets in the zone
-    subnet_present=$(aws ec2 describe-subnets --filters "Name=availability-zone,Values=$zone" --query 'Subnets[?State==`available`]' --output json | jq -e 'length > 0')
+    # Check for subnets in the zone within the specified VPC
+    subnet_info=$(aws ec2 describe-subnets --filters "Name=availability-zone,Values=$zone" "Name=vpc-id,Values=$VPC_ID" \
+        --query 'Subnets[?State==`available`]' --output json)
 
-    if [ "$subnet_present" != "true" ]; then
+    subnet_count=$(echo "$subnet_info" | jq 'length')
+
+    if [ "$subnet_count" -eq 0 ]; then
         missing_subnets+=("$zone")
+    else
+        # Verify MapPublicIpOnLaunch for all found subnets
+        map_public_ip=$(echo "$subnet_info" | jq -r '.[].MapPublicIpOnLaunch' | grep -v "true")
+
+        if [ -n "$map_public_ip" ]; then
+            map_public_ip_errors+=("$zone")
+        fi
     fi
 done
 
-
-# If any required subnets are missing, exit with an error
+# Handle missing subnets
 if [ ${#missing_subnets[@]} -ne 0 ]; then
     echo -e "${RED}Error: Missing subnets in the following availability zones: ${missing_subnets[*]}${NC}"
     echo "Please reset the lab and try again."
-    echo
+    return
+fi
+
+# Handle subnets with incorrect MapPublicIpOnLaunch attribute
+if [ ${#map_public_ip_errors[@]} -ne 0 ]; then
+    echo -e "${RED}Error: The following availability zones have subnets with MapPublicIpOnLaunch set to false: ${map_public_ip_errors[*]}${NC}"
+    echo "Please reset the lab and try again."
     return
 fi
 
