@@ -2,6 +2,7 @@
 
 RED="\e[0;31m"
 GREEN="\e[0;32m"
+YELLOW="\e[0;33m"
 MAGENTA="\e[0;35m"
 NC="\e[0m"
 
@@ -26,8 +27,7 @@ if ! command -v aws > /dev/null ; then
 fi
 
 if ! command -v terraform > /dev/null ; then
-    echo -e "${RED}terraform is not installed. Please install it.${NC}"
-    return
+    echo -e "${YELLOW}WARN: terraform is not installed. If you intend to use it, please install it first.${NC}"
 fi
 
 if ! command -v jq > /dev/null ; then
