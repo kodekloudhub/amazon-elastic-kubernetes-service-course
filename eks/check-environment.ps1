@@ -9,7 +9,6 @@ if (-not (Get-Command aws -ErrorAction SilentlyContinue)) {
 # Check if Terraform is installed
 if (-not (Get-Command terraform -ErrorAction SilentlyContinue)) {
     Write-Host "WARN: terraform is not installed. If you intend to use it, please install it first." -ForegroundColor Yellow
-    return
 }
 
 # Check if jq is installed
