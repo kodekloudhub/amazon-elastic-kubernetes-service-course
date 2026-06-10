@@ -62,9 +62,20 @@
 
 ## What next?
 
-If you came here from an EKS course lab, proceed with the lab.
+If you came here from the EKS course or any other lab, proceed with the lab.
 
-If you deployed on your personal account or into an AWS playground
+If you deployed on your personal account or into an AWS playground:
+
+First, install [cert-manager ](https://cert-manager.io/docs/) which required to generate TLS certificates on the fly for controller webhooks. It is required by the cluster add-ons below. Run the following command:
+
+```bash
+kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.20.2/cert-manager.yaml
+```
+
+Wait for all pods in `cert-manager` namespace to be running.
+
+
+**Cluster add-ons**
 
 * [Set up loadbalancing](./loadbalancer.md)
 
