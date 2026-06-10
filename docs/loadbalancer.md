@@ -4,6 +4,8 @@ This guide assumes you are still in the `eks` directory having completed running
 
 Now we will install the AWS LoadBalancer provider, which automatically provisions an Application Load Balancer in front of `Ingress` resources or a Network Load Balancer in front of a `Service` of type `LoadBalancer`.
 
+Ensure you already deployed `cert-manager`. See towards the end of the [Join Nodes](./nodes.md) page if you did not.
+
 ## Install controller
 
 1. Tag all the subnets with the labels required for the loadbalancer controller to identify them as subnets that a loadbalancer's public endpoints can be bound to. Run the following command:
