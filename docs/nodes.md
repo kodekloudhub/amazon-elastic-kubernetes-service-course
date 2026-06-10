@@ -60,6 +60,26 @@
 
     You can also view the completed cluster in the [EKS Console](https://us-east-1.console.aws.amazon.com/eks/home?region=us-east-1).
 
+## What next?
+
+If you came here from the EKS course or any other lab, proceed with the lab.
+
+If you deployed on your personal account or into an AWS playground:
+
+First, install [cert-manager ](https://cert-manager.io/docs/) which required to generate TLS certificates on the fly for controller webhooks. It is required by the cluster add-ons below. Run the following command:
+
+```bash
+kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.20.2/cert-manager.yaml
+```
+
+Wait for all pods in `cert-manager` namespace to be running.
+
+
+**Cluster add-ons**
+
+* [Set up loadbalancing](./loadbalancer.md)
+
+
 ## Personal AWS Account
 
 If you deployed the cluster into your own AWS account, you should delete resources when finished to avoid unwanted charges and also any risk of account compromise! This is *not* a security focused production grade deployment! Run the following:
