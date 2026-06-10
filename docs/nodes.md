@@ -60,6 +60,15 @@
 
     You can also view the completed cluster in the [EKS Console](https://us-east-1.console.aws.amazon.com/eks/home?region=us-east-1).
 
+## What next?
+
+If you came here from an EKS course lab, proceed with the lab.
+
+If you deployed on your personal account or into an AWS playground
+
+* [Set up loadbalancing](./loadbalancer.md)
+
+
 ## Personal AWS Account
 
 If you deployed the cluster into your own AWS account, you should delete resources when finished to avoid unwanted charges and also any risk of account compromise! This is *not* a security focused production grade deployment! Run the following:
