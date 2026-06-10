@@ -42,3 +42,5 @@ k8s-game2048-ingress2-46dbc758ae-1259289732.us-east-1.elb.amazonaws.com
 ```
 
 Put `http://` in front of this and then paste into your browser. The game should come up.
+
+Note that the 2048 game deploys a `NodePort` service, not a `LoadBalancer` one. The Application Load Balancer *is* the ingress controller, thus there is no spearate ingress controller workload (like `ingress-nginx`) as it isn't necessary. The ingress logic is done inside the ALB via listeners and target groups, and the ALB binds directly to the service node port on all the cluster nodes.
