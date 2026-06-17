@@ -1762,6 +1762,7 @@ spec:
       - args:
         - --cluster-name=demo-eks
         - --ingress-class=alb
+        - --feature-gates=ALBGatewayAPI=true
         image: public.ecr.aws/eks/aws-load-balancer-controller:v3.4.0
         livenessProbe:
           failureThreshold: 2

@@ -1,0 +1,117 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: game-2048-gw
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: game-2048-gw
+  name: deployment-2048
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: app-2048
+  replicas: 5
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: app-2048
+    spec:
+      containers:
+      - image: public.ecr.aws/l6m2t8p7/docker-2048:latest
+        imagePullPolicy: Always
+        name: app-2048
+        ports:
+        - containerPort: 80
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: game-2048-gw
+  name: service-2048
+spec:
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: app-2048
+---
+apiVersion: gateway.networking.k8s.io/v1beta1
+kind: GatewayClass
+metadata:
+  name: amazon-alb
+spec:
+  controllerName: "networking.k8s.io/aws-load-balancer-controller"
+
+---
+
+apiVersion: elbv2.k8s.aws/v1beta1
+kind: LoadBalancerConfiguration
+metadata:
+  namespace: game-2048-gw
+  name: alb-config-2048
+spec:
+  scheme: internet-facing
+
+---
+
+apiVersion: gateway.networking.k8s.io/v1beta1
+kind: TargetGroupConfiguration
+metadata:
+  namespace: game-2048-gw
+  name: tg-config-2048
+spec:
+  # Links directly to your Core Kubernetes Service object
+  targetReference:
+    group: ""
+    kind: Service
+    name: service-2048
+  defaultConfiguration:
+    # Explicitly sets target routing directly to Pod private IPs
+    targetType: ip
+
+---
+
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  namespace: game-2048-gw
+  name: gateway-2048
+  annotations:
+    elbv2.k8s.aws/load-balancer-configuration: alb-config-2048
+spec:
+  gatewayClassName: amazon-alb
+  listeners:
+  - name: http
+    protocol: HTTP
+    port: 80
+    allowedRoutes:
+      namespaces:
+        from: Same
+
+---
+
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  namespace: game-2048-gw
+  name: http-route-2048
+spec:
+  parentRefs:
+  - name: gateway-2048
+    namespace: game-2048-gw
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /
+    backendRefs:
+    - name: service-2048
+      port: 80
