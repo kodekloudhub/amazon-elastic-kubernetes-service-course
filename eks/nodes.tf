@@ -229,38 +229,36 @@ resource "time_sleep" "wait_30_seconds" {
   create_duration = "30s"
 }
 
-# Defer to CloudFormation here to create AutoScalingGroup
-# as the terraform ASG resource does not support UpdatePolicy
-resource "aws_cloudformation_stack" "autoscaling_group" {
+resource "aws_autoscaling_group" "nodes" {
+  name = "node-asg"
+
   depends_on = [
     time_sleep.wait_30_seconds
   ]
-  name          = "eks-cluster-stack"
-  template_body = <<EOF
-Description: "Node autoscaler"
-Resources:
-  NodeGroup:
-    Type: AWS::AutoScaling::AutoScalingGroup
-    Properties:
-      VPCZoneIdentifier: ["${data.aws_subnets.public.ids[0]}","${data.aws_subnets.public.ids[1]}", "${data.aws_subnets.public.ids[2]}"]
-      MinSize: "${var.node_group_min_size}"
-      MaxSize: "${var.node_group_max_size}"
-      DesiredCapacity: "${var.node_group_desired_capacity}"
-      HealthCheckType: EC2
-      LaunchTemplate:
-        LaunchTemplateId: "${aws_launch_template.node_launch_template.id}"
-        Version: "${aws_launch_template.node_launch_template.latest_version}"
-    UpdatePolicy:
-    # Ignore differences in group size properties caused by scheduled actions
-      AutoScalingScheduledAction:
-        IgnoreUnmodifiedGroupSizeProperties: true
-      AutoScalingRollingUpdate:
-        MaxBatchSize: 1
-        MinInstancesInService: "${var.node_group_desired_capacity}"
-        PauseTime: PT5M
-Outputs:
-  NodeAutoScalingGroup:
-    Description: The autoscaling group
-    Value: !Ref NodeGroup
-  EOF
+
+  vpc_zone_identifier = [
+    data.aws_subnets.public.ids[0],
+    data.aws_subnets.public.ids[1],
+    data.aws_subnets.public.ids[2],
+  ]
+
+  min_size         = var.node_group_min_size
+  max_size         = var.node_group_max_size
+  desired_capacity = var.node_group_desired_capacity
+
+  health_check_type = "EC2"
+
+  launch_template {
+    id      = aws_launch_template.node_launch_template.id
+    version = aws_launch_template.node_launch_template.latest_version
+  }
+
+  instance_refresh {
+    strategy = "Rolling"
+
+    preferences {
+      min_healthy_percentage = 100
+      instance_warmup        = 300
+    }
+  }
 }
