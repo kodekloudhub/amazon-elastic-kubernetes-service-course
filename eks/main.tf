@@ -27,5 +27,5 @@ output "NodeSecurityGroup" {
 }
 
 output "NodeAutoScalingGroup" {
-  value = aws_cloudformation_stack.autoscaling_group.outputs["NodeAutoScalingGroup"]
+  value = aws_autoscaling_group.nodes.id
 }
